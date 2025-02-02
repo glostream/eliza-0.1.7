@@ -37,6 +37,8 @@ import {
 } from "./types.ts";
 import { fal } from "@fal-ai/client";
 
+import { rag } from "./rag.ts";
+
 /**
  * Send a message to the model for a text generateText - receive a string back and parse how you'd like
  * @param opts - The options for the generateText request.
@@ -159,6 +161,7 @@ export async function generateText({
             `Trimming context to max length of ${max_context_length} tokens.`
         );
         context = await trimTokens(context, max_context_length, "gpt-4o");
+        context = await rag(runtime, context);
 
         let response: string;
 
@@ -389,6 +392,11 @@ export async function generateText({
                     fetch: runtime.fetch,
                 });
 
+                elizaLogger.info(
+                    "Calling OpenRouter model with context:",
+                    context
+                );
+
                 const { text: openrouterResponse } = await aiGenerateText({
                     model: openrouter.languageModel(model),
                     prompt: context,
@@ -563,6 +571,14 @@ export async function generateText({
                 throw new Error(errorMessage);
             }
         }
+
+        const singleLineText = response
+            .replace(/\n/g, "\\n")
+            .replace(/"/g, '\\"');
+
+        response = `\`\`\`json
+        { "user": "Debater", "text": "${singleLineText}", "action": "NONE" }
+        \`\`\``;
 
         return response;
     } catch (error) {

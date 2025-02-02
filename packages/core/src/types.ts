@@ -778,6 +778,15 @@ export type Character = {
     nft?: {
         prompt: string;
     };
+
+    /** Optional Number of recent messages to include in the RAG query */
+    numRecentMessages?: number;
+
+    /** Optional Number of RAG documents to retrieve */
+    numRagDocuments?: number;
+
+    /** Optional Number of RAG documents to retain after reranking */
+    numRerankedDocuments?: number;
 };
 
 /**
