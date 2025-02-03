@@ -37,6 +37,19 @@ export async function getEmbedding(
  * @returns Search response from Qdrant API containing similar documents
  */
 export async function searchSimilar(runtime: IAgentRuntime, embedding: any) {
+    elizaLogger.info("Searching for similar documents...");
+    const embedding_sample = JSON.parse(JSON.stringify(embedding));
+    embedding_sample.data[0].embedding =
+        embedding_sample.data[0].embedding.slice(0, 10);
+    elizaLogger.info("Embedding sample:", embedding_sample);
+    elizaLogger.info(
+        "Qdrant URL:",
+        `${process.env.QDRANT_URL.slice(0, 14)}...`
+    );
+    elizaLogger.info(
+        "Qdrant API Key:",
+        `${process.env.QDRANT_API_KEY.slice(0, 6)}...`
+    );
     const search_response = await runtime
         .fetch(`${process.env.QDRANT_URL}/collections/rag/points/search`, {
             method: "POST",
@@ -46,7 +59,7 @@ export async function searchSimilar(runtime: IAgentRuntime, embedding: any) {
             },
             body: JSON.stringify({
                 vector: embedding.data[0].embedding,
-                limit: runtime.character.numRagDocuments || 10, // Get top 5 most similar documents
+                limit: runtime.character.numRagDocuments || 10, // Get top 10 most similar documents
                 with_payload: true,
                 score_threshold: 0.5,
             }),
@@ -112,6 +125,7 @@ export async function rag(
     const embedding = await getEmbedding(runtime, recentMessages);
 
     const search_response = await searchSimilar(runtime, embedding);
+
     elizaLogger.info("Search response:", search_response);
 
     let contextWithRag = context;
