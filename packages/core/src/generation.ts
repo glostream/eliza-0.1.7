@@ -572,13 +572,13 @@ export async function generateText({
             }
         }
 
-        const singleLineText = response
-            .replace(/\n/g, "\\n")
-            .replace(/"/g, '\\"');
+        // const singleLineText = response
+        //     .replace(/\n/g, "\\n")
+        //     .replace(/"/g, '\\"');
 
-        response = `\`\`\`json
-        { "user": "Debater", "text": "${singleLineText}", "action": "NONE" }
-        \`\`\``;
+        // response = `\`\`\`json
+        // { "user": "Debater", "text": "${singleLineText}", "action": "NONE" }
+        // \`\`\``;
 
         return response;
     } catch (error) {
